@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nr-lab-deployment
+  labels:
+    app: nr-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nr-lab
+  template:
+    metadata:
+      labels:
+        app: nr-lab
+    spec:
+      containers:
+      - name: mysql
+        image: nrcandidatelab/nrcl_mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "password"
+        - name: MYSQL_USER
+          value: "admin"
+        - name: MYSQL_PASSWORD
+          value: "password"
+        - name: MYSQL_DATABASE
+          value: "SALESMANAGER"
+        ports:
+        - containerPort: 3306
+          hostPort: 3306
+      - name: storefront
+        image: nrcandidatelab/nrcl_java_app:latest
+        command: ["/bin/bash", "-ec", "while :; do echo '.'; sleep 5 ; done"]
+        ports:
+        - containerPort: 8080
+          hostPort: 8080
+      - name: browser
+        image: nrcandidatelab/nrcl_selenium_browser:latest
+        ports:
+        - containerPort: 4444
+      - name: traffic
+        image: nrcandidatelab/nrcl_traffic:latest
+        ports:
+        - containerPort: 80
